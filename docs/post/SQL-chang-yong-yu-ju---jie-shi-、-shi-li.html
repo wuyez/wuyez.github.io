@@ -10,9 +10,9 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="不知道啥原因，Gmeek不好使了。">
+<meta name="description" content="下面给出「带中文解释 + 直接可复制」的 SQL 模板清单。">
 <meta property="og:title" content="SQL常用语句-解释、示例">
-<meta property="og:description" content="不知道啥原因，Gmeek不好使了。">
+<meta property="og:description" content="下面给出「带中文解释 + 直接可复制」的 SQL 模板清单。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://wuyez.github.io//post/SQL-chang-yong-yu-ju---jie-shi-%E3%80%81-shi-li.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/13791896?v=4">
@@ -73,7 +73,277 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><p>不知道啥原因，Gmeek不好使了。找到原因了。</p></div>
+<div class="markdown-body" id="postBody"><p>下面给出「带中文解释 + 直接可复制」的 SQL 模板清单。<br>
+每条语句都写成三段：<br>
+① 作用说明（中文）<br>
+② 完整模板（直接复制，把中文占位符换成实际对象名即可运行）<br>
+③ 示例（可选，帮助你快速代入）</p>
+<p>按使用频率由高到低排列，方便速查。</p>
+<hr>
+<ol>
+<li>查询整张表<br>
+【说明】一次性取出全部行和列，仅适合小表。<br>
+模板：<br>
+SELECT * FROM 表名;<br>
+示例：<br>
+SELECT * FROM user;</li>
+</ol>
+<hr>
+<ol start="2">
+<li>查询指定列<br>
+【说明】只取需要的列，减少网络 IO。<br>
+模板：<br>
+SELECT 列1, 列2 FROM 表名;<br>
+示例：<br>
+SELECT id, name FROM user;</li>
+</ol>
+<hr>
+<ol start="3">
+<li>条件过滤<br>
+【说明】按 WHERE 子句过滤，避免全表扫描。<br>
+模板：<br>
+SELECT * FROM 表名 WHERE 条件;<br>
+示例：<br>
+SELECT * FROM user WHERE age &gt; 18;</li>
+</ol>
+<hr>
+<ol start="4">
+<li>模糊搜索（左前缀）<br>
+【说明】模糊匹配以某字符串开头。% 表示任意长度。<br>
+模板：<br>
+SELECT * FROM 表名 WHERE 列 LIKE '前缀%';<br>
+示例：<br>
+SELECT * FROM user WHERE name LIKE '张%';</li>
+</ol>
+<hr>
+<ol start="5">
+<li>排序 + 取前 N 条<br>
+【说明】先排序再 LIMIT，常用于排行榜、最新记录。<br>
+模板：<br>
+SELECT * FROM 表名 ORDER BY 列 DESC LIMIT N;<br>
+示例：<br>
+SELECT * FROM order ORDER BY create_time DESC LIMIT 10;</li>
+</ol>
+<hr>
+<ol start="6">
+<li>去重查询<br>
+【说明】返回唯一值列表，通常用于维度列。<br>
+模板：<br>
+SELECT DISTINCT 列 FROM 表名;<br>
+示例：<br>
+SELECT DISTINCT department FROM employee;</li>
+</ol>
+<hr>
+<ol start="7">
+<li>计数<br>
+【说明】统计行数，常配合 WHERE 做条件计数。<br>
+模板：<br>
+SELECT COUNT(<em>) FROM 表名 WHERE 条件;<br>
+示例：<br>
+SELECT COUNT(</em>) FROM user WHERE status = 1;</li>
+</ol>
+<hr>
+<ol start="8">
+<li>分组汇总<br>
+【说明】GROUP BY + 聚合函数，实现“每组的统计值”。<br>
+模板：<br>
+SELECT 分组列, COUNT(<em>) AS 数量 FROM 表名 GROUP BY 分组列;<br>
+示例：<br>
+SELECT department, COUNT(</em>) AS emp_cnt FROM employee GROUP BY department;</li>
+</ol>
+<hr>
+<ol start="9">
+<li>分组后二次过滤<br>
+【说明】GROUP BY 后再用 HAVING 筛掉不满足条件的组。<br>
+模板：<br>
+SELECT 分组列, COUNT(<em>) AS 数量<br>
+FROM 表名<br>
+GROUP BY 分组列<br>
+HAVING COUNT(</em>) &gt; 阈值;<br>
+示例：<br>
+SELECT department, COUNT(*) AS emp_cnt<br>
+FROM employee<br>
+GROUP BY department<br>
+HAVING emp_cnt &gt; 5;</li>
+</ol>
+<hr>
+<ol start="10">
+<li>求和 / 平均 / 最大 / 最小<br>
+【说明】聚合函数一次性计算。<br>
+模板：<br>
+SELECT<br>
+SUM(数值列) AS 总和,<br>
+AVG(数值列) AS 平均,<br>
+MAX(数值列) AS 最大,<br>
+MIN(数值列) AS 最小<br>
+FROM 表名<br>
+WHERE 条件;<br>
+示例：<br>
+SELECT SUM(amount), AVG(amount) FROM order WHERE create_date = CURDATE();</li>
+</ol>
+<hr>
+<ol start="11">
+<li>插入单行<br>
+【说明】指定列插入一条记录，自动增长列可省略。<br>
+模板：<br>
+INSERT INTO 表名 (列1, 列2) VALUES (值1, 值2);<br>
+示例：<br>
+INSERT INTO user (name, age) VALUES ('张三', 25);</li>
+</ol>
+<hr>
+<ol start="12">
+<li>批量插入<br>
+【说明】一次提交多行，减少网络往返。<br>
+模板：<br>
+INSERT INTO 表名 (列1, 列2) VALUES<br>
+(值1, 值2),<br>
+(值3, 值4),<br>
+(值5, 值6);<br>
+示例：<br>
+INSERT INTO user (name, age) VALUES ('李四', 30), ('王五', 28);</li>
+</ol>
+<hr>
+<ol start="13">
+<li>更新数据<br>
+【说明】务必带 WHERE，否则整表被改。<br>
+模板：<br>
+UPDATE 表名 SET 列1 = 新值1, 列2 = 新值2 WHERE 条件;<br>
+示例：<br>
+UPDATE user SET age = 26 WHERE id = 1001;</li>
+</ol>
+<hr>
+<ol start="14">
+<li>删除数据<br>
+【说明】务必带 WHERE，否则整表被删。<br>
+模板：<br>
+DELETE FROM 表名 WHERE 条件;<br>
+示例：<br>
+DELETE FROM user WHERE status = 0;</li>
+</ol>
+<hr>
+<ol start="15">
+<li>创建表<br>
+【说明】定义列、主键、常见约束。<br>
+模板：<br>
+CREATE TABLE 表名 (<br>
+id INT PRIMARY KEY AUTO_INCREMENT,<br>
+列2 数据类型 NOT NULL,<br>
+列3 数据类型 DEFAULT 默认值,<br>
+索引列1, 索引列2<br>
+);<br>
+示例：<br>
+CREATE TABLE user (<br>
+id INT PRIMARY KEY AUTO_INCREMENT,<br>
+name VARCHAR(50) NOT NULL,<br>
+age INT DEFAULT 0,<br>
+INDEX idx_name (name)<br>
+);</li>
+</ol>
+<hr>
+<ol start="16">
+<li>给表加索引<br>
+【说明】加速 WHERE / JOIN / ORDER BY 列。<br>
+模板：<br>
+CREATE INDEX 索引名 ON 表名 (列);<br>
+示例：<br>
+CREATE INDEX idx_user_age ON user (age);</li>
+</ol>
+<hr>
+<ol start="17">
+<li>两表内连接<br>
+【说明】只保留两表匹配成功的行。<br>
+模板：<br>
+SELECT a.<em>, b.</em><br>
+FROM 表A a<br>
+INNER JOIN 表B b ON a.关联列 = b.关联列<br>
+WHERE a.条件;<br>
+示例：<br>
+SELECT u.*, o.amount<br>
+FROM user u<br>
+INNER JOIN orders o ON u.id = o.user_id<br>
+WHERE u.status = 1;</li>
+</ol>
+<hr>
+<ol start="18">
+<li>左连接（保留左表全部）<br>
+模板：<br>
+SELECT a.<em>, b.</em><br>
+FROM 表A a<br>
+LEFT JOIN 表B b ON a.关联列 = b.关联列;<br>
+示例：<br>
+SELECT u.*, o.amount<br>
+FROM user u<br>
+LEFT JOIN orders o ON u.id = o.user_id;</li>
+</ol>
+<hr>
+<ol start="19">
+<li>子查询（IN）<br>
+【说明】某列值存在于子查询结果中。<br>
+模板：<br>
+SELECT * FROM 表名 WHERE 列 IN (SELECT 列 FROM 其他表 WHERE 条件);<br>
+示例：<br>
+SELECT * FROM user WHERE id IN (SELECT user_id FROM orders WHERE amount &gt; 1000);</li>
+</ol>
+<hr>
+<ol start="20">
+<li>事务范例<br>
+【说明】多条 SQL 原子提交。<br>
+模板：<br>
+BEGIN;<br>
+UPDATE 账户表 SET 余额 = 余额 - 100 WHERE id = 1;<br>
+UPDATE 账户表 SET 余额 = 余额 + 100 WHERE id = 2;<br>
+COMMIT;<br>
+-- 出错时执行 ROLLBACK;</li>
+</ol>
+<hr>
+<ol start="21">
+<li>备份 &amp; 恢复（命令行）<br>
+【说明】mysqldump 逻辑备份，跨平台通用。<br>
+备份：<br>
+mysqldump -u 用户名 -p 数据库名 &gt; 备份文件.sql<br>
+恢复：<br>
+mysql -u 用户名 -p 数据库名 &lt; 备份文件.sql</li>
+</ol>
+<hr>
+<ol start="22">
+<li>查看表结构<br>
+模板：<br>
+DESCRIBE 表名;<br>
+示例：<br>
+DESCRIBE user;</li>
+</ol>
+<hr>
+<ol start="23">
+<li>查看当前连接<br>
+模板：<br>
+SHOW PROCESSLIST;</li>
+</ol>
+<hr>
+<ol start="24">
+<li>查数据库占用大小<br>
+模板：<br>
+SELECT<br>
+table_schema AS '数据库',<br>
+ROUND(SUM(data_length + index_length)/1024/1024, 2) AS '大小(MB)'<br>
+FROM information_schema.TABLES<br>
+GROUP BY table_schema;</li>
+</ol>
+<hr>
+<ol start="25">
+<li>取前 N 条 / 最后 N 条<br>
+【说明】ORDER BY + LIMIT 的经典用法。<br>
+前 N 条：<br>
+SELECT * FROM 表名 ORDER BY 主键 ASC LIMIT N;<br>
+最后 N 条：<br>
+SELECT * FROM 表名 ORDER BY 主键 DESC LIMIT N;</li>
+</ol>
+<hr>
+<p>使用方式：</p>
+<ol>
+<li>先读「作用说明」确认需求；</li>
+<li>复制「模板」到 SQL 客户端；</li>
+<li>替换中文占位符（表名、列名、条件、值）即可执行。</li>
+</ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
