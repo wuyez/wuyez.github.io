@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://wuyez.github.io/"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="
+### **一、数字校验类**
+| **表达式**| **说明**| **示例**|
+|--------------------------|----------------------------------------|---------------|
+| `^[0-9]*$`| 纯数字（可为空）| 123|
+| `^\d{n}$`| 固定n位数字| 1234 (n=4)|
+| `^\d{m,n}$`| m~n位数字| 123 (m=3,n=5) |
+| `^(0\|[1-9][0-9]*)$`| 非负整数（0或正整数）| 0, 123|
+| `^[1-9][0-9]*$`| 正整数（不含0）| 1, 456|
+| `^-[1-9]\d*$`| 负整数（不含0）| -789|
+| `^(\-\|\+)?\d+(\.\d+)?$` | 正/负数及小数（支持±号）| +3.14, -0.5|
+| `^[0-9]+(\.[0-9]{1,2})?$` | 最多两位小数的正数| 10.99|
+| `^\d+(\.\d+)?$`| 非负浮点数| 3.14, 100|
+| `^-([1-9]\d*\.\d*\|0\.\d*[1-9]\d*)$` | 负浮点数| -0.25|
+
+---
+
+### **二、字符校验类**
+| **表达式**| **说明**| **示例**|
+|-------------------------------|------------------------------------------|-----------------|
+| `^[\u4e00-\u9fa5]{0,}$`| 中文字符（含空字符串）| 正则表达式|
+| `^[A-Za-z0-9]+$`| 英文/数字组合（不含符号）| Hello123|
+| `^.{3,20}$`| 长度3~20的任意字符| abc_@1|
+| `^[A-Za-z]+$`| 纯英文字母（不区分大小写）| RegEx|
+| `^\w+$`| 字母/数字/下划线| user_name123|
+| `^[\u4E00-\u9FA5A-Za-z0-9]+$` | 中文/英文/数字（不含下划线）| 用户123|
+| `[^%&',;=?$\x22]+`| 禁止输入 %&',;?$' 等敏感字符| Safe#Input|
+| `[\u4E00-\u9FA5]`| 匹配单个汉字（用于文本提取）| 中|
+| `[\uFF00-\uFFFF]`| 匹配全角符号|＠，．|
+
+---
+
+### **三、特殊格式校验**
+#### **1. 通讯与身份**
+| **表达式**| **说明**| **示例**|
+|---------------------------------------------------------------|-----------------------------|--------------------|
+| `^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$`| 标准邮箱格式| user@example.com|
+| `^(13[0-9]\|14[5\|7]\|15[0-3,5-9]\|18[0-9]\|17[0-8])\d{8}$` | 中国大陆手机号| 13800138000|
+| `^(\d{3,4}-)?\d{7,8}$`| 固定电话号码（带区号）| 021-87654321|
+| `^\d{15}\|\d{18}$`| 15位/18位身份证号| 110105199901011234 |
+| `^[a-zA-Z][a-zA-Z0-9_]{4,15}$`| 账号（字母开头，5-16位）| user_123|
+
+#### **2. 网络与地址**
+| **表达式**| **说明**| **示例**|
+|---------------------------------------------------------------------------|-----------------------|------------------------|
+| `^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?$`| URL链接| https://www.example.com|
+| `((25[0-5]\|2[0-4]\d\|?\d?\d)\.){3}(25[0-5]\|2[0-4]\d\|?\d?\d)` | IPv4地址| 192.168.1.1|
+| `[1-9]\d{5}(?!\d)`| 中国邮政编码| 100000|
+
+#### **3. 日期与时间**
+| **表达式**| **说明**| **示例**|
+|-------------------------------------------|-----------------------------|------------|
+| `^\d{4}-\d{1,2}-\d{1,2}$`| 年-月-日格式| 2023-08-01 |
+| `^(0?[1-9]\|1[0-2])$`| 月份（01~12或1~12）| 7, 12|
+| `^((0?[1-9])\|((1\|2)[0-9])\|30\|31)$`| 日期（1~31）| 25, 31|
+
+#### **4. 安全校验**
+| **表达式**| **说明**| **示例**|
+|-----------------------------------------|----------------------------------|--------------|
+| `^[a-zA-Z]\w{5,17}$`| 密码（字母开头，6~18位）| Pass_123|
+| `^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$` | 强密码（大小写+数字，8~10位）| Secure1|
+
+---
+
+### **四、文本处理类**
+| **表达式**| **说明**| **用途**|
+|--------------------|-----------------------------|-----------------------|
+| `\n\s*\r`| 空白行（含换行符和空格）| 删除空白行|
+| `^\s*\|\s*$`| 行首/行尾空白字符（空格/tab） | 去除首尾空格|
+| `<!--(.*?)-->`| HTML注释内容| 提取或删除注释|
+| `[\u0000-\u00FF]`| 半角字符（ASCII范围）| 字符集识别|
+| `[^\x00-\xff]`| 双字节字符（含汉字）| 计算文本长度（汉字计2）|
+
+---
+
+### **五、其他实用表达式**
+| **表达式**| **说明**| **示例**|
+|---------------------------------|---------------------------|----------------|
+| `^[1-9][0-9]{4,}$`| 腾讯QQ号（5位以上）| 10000|
+| `^([a-zA-Z]:\\)?([^\\:\*\?'<>\|]+\\)*[^\\:\*\?'<>\|]+\.txt$` | Windows文本文件路径 | C:\docs\file.txt |
+| `^#([A-Fa-f0-9]{6}\|[A-Fa-f0-9]{3})$` | HEX颜色代码| #FF00FF|
+
+---
+
+### **使用说明**
+1. **语言兼容性**：以上表达式在主流编程语言中通用（如Python/Java/JavaScript），部分需转义（如Java需双反斜杠 `\\d`）。">
+<meta property="og:title" content="常用正则表达式">
+<meta property="og:description" content="
+### **一、数字校验类**
+| **表达式**| **说明**| **示例**|
+|--------------------------|----------------------------------------|---------------|
+| `^[0-9]*$`| 纯数字（可为空）| 123|
+| `^\d{n}$`| 固定n位数字| 1234 (n=4)|
+| `^\d{m,n}$`| m~n位数字| 123 (m=3,n=5) |
+| `^(0\|[1-9][0-9]*)$`| 非负整数（0或正整数）| 0, 123|
+| `^[1-9][0-9]*$`| 正整数（不含0）| 1, 456|
+| `^-[1-9]\d*$`| 负整数（不含0）| -789|
+| `^(\-\|\+)?\d+(\.\d+)?$` | 正/负数及小数（支持±号）| +3.14, -0.5|
+| `^[0-9]+(\.[0-9]{1,2})?$` | 最多两位小数的正数| 10.99|
+| `^\d+(\.\d+)?$`| 非负浮点数| 3.14, 100|
+| `^-([1-9]\d*\.\d*\|0\.\d*[1-9]\d*)$` | 负浮点数| -0.25|
+
+---
+
+### **二、字符校验类**
+| **表达式**| **说明**| **示例**|
+|-------------------------------|------------------------------------------|-----------------|
+| `^[\u4e00-\u9fa5]{0,}$`| 中文字符（含空字符串）| 正则表达式|
+| `^[A-Za-z0-9]+$`| 英文/数字组合（不含符号）| Hello123|
+| `^.{3,20}$`| 长度3~20的任意字符| abc_@1|
+| `^[A-Za-z]+$`| 纯英文字母（不区分大小写）| RegEx|
+| `^\w+$`| 字母/数字/下划线| user_name123|
+| `^[\u4E00-\u9FA5A-Za-z0-9]+$` | 中文/英文/数字（不含下划线）| 用户123|
+| `[^%&',;=?$\x22]+`| 禁止输入 %&',;?$' 等敏感字符| Safe#Input|
+| `[\u4E00-\u9FA5]`| 匹配单个汉字（用于文本提取）| 中|
+| `[\uFF00-\uFFFF]`| 匹配全角符号|＠，．|
+
+---
+
+### **三、特殊格式校验**
+#### **1. 通讯与身份**
+| **表达式**| **说明**| **示例**|
+|---------------------------------------------------------------|-----------------------------|--------------------|
+| `^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$`| 标准邮箱格式| user@example.com|
+| `^(13[0-9]\|14[5\|7]\|15[0-3,5-9]\|18[0-9]\|17[0-8])\d{8}$` | 中国大陆手机号| 13800138000|
+| `^(\d{3,4}-)?\d{7,8}$`| 固定电话号码（带区号）| 021-87654321|
+| `^\d{15}\|\d{18}$`| 15位/18位身份证号| 110105199901011234 |
+| `^[a-zA-Z][a-zA-Z0-9_]{4,15}$`| 账号（字母开头，5-16位）| user_123|
+
+#### **2. 网络与地址**
+| **表达式**| **说明**| **示例**|
+|---------------------------------------------------------------------------|-----------------------|------------------------|
+| `^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?$`| URL链接| https://www.example.com|
+| `((25[0-5]\|2[0-4]\d\|?\d?\d)\.){3}(25[0-5]\|2[0-4]\d\|?\d?\d)` | IPv4地址| 192.168.1.1|
+| `[1-9]\d{5}(?!\d)`| 中国邮政编码| 100000|
+
+#### **3. 日期与时间**
+| **表达式**| **说明**| **示例**|
+|-------------------------------------------|-----------------------------|------------|
+| `^\d{4}-\d{1,2}-\d{1,2}$`| 年-月-日格式| 2023-08-01 |
+| `^(0?[1-9]\|1[0-2])$`| 月份（01~12或1~12）| 7, 12|
+| `^((0?[1-9])\|((1\|2)[0-9])\|30\|31)$`| 日期（1~31）| 25, 31|
+
+#### **4. 安全校验**
+| **表达式**| **说明**| **示例**|
+|-----------------------------------------|----------------------------------|--------------|
+| `^[a-zA-Z]\w{5,17}$`| 密码（字母开头，6~18位）| Pass_123|
+| `^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$` | 强密码（大小写+数字，8~10位）| Secure1|
+
+---
+
+### **四、文本处理类**
+| **表达式**| **说明**| **用途**|
+|--------------------|-----------------------------|-----------------------|
+| `\n\s*\r`| 空白行（含换行符和空格）| 删除空白行|
+| `^\s*\|\s*$`| 行首/行尾空白字符（空格/tab） | 去除首尾空格|
+| `<!--(.*?)-->`| HTML注释内容| 提取或删除注释|
+| `[\u0000-\u00FF]`| 半角字符（ASCII范围）| 字符集识别|
+| `[^\x00-\xff]`| 双字节字符（含汉字）| 计算文本长度（汉字计2）|
+
+---
+
+### **五、其他实用表达式**
+| **表达式**| **说明**| **示例**|
+|---------------------------------|---------------------------|----------------|
+| `^[1-9][0-9]{4,}$`| 腾讯QQ号（5位以上）| 10000|
+| `^([a-zA-Z]:\\)?([^\\:\*\?'<>\|]+\\)*[^\\:\*\?'<>\|]+\.txt$` | Windows文本文件路径 | C:\docs\file.txt |
+| `^#([A-Fa-f0-9]{6}\|[A-Fa-f0-9]{3})$` | HEX颜色代码| #FF00FF|
+
+---
+
+### **使用说明**
+1. **语言兼容性**：以上表达式在主流编程语言中通用（如Python/Java/JavaScript），部分需转义（如Java需双反斜杠 `\\d`）。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://wuyez.github.io//post/chang-yong-zheng-ze-biao-da-shi.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/13791896?v=4">
+<title>常用正则表达式</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">常用正则表达式</h1>
+<div class="title-right">
+    <a href="https://wuyez.github.io/" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/wuyez/wuyez.github.io/issues/27" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h3><strong>一、数字校验类</strong></h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^[0-9]*$</code></td>
+<td>纯数字（可为空）</td>
+<td>123</td>
+</tr>
+<tr>
+<td><code class="notranslate">^\d{n}$</code></td>
+<td>固定n位数字</td>
+<td>1234 (n=4)</td>
+</tr>
+<tr>
+<td><code class="notranslate">^\d{m,n}$</code></td>
+<td>m~n位数字</td>
+<td>123 (m=3,n=5)</td>
+</tr>
+<tr>
+<td><code class="notranslate">^(0|[1-9][0-9]*)$</code></td>
+<td>非负整数（0或正整数）</td>
+<td>0, 123</td>
+</tr>
+<tr>
+<td><code class="notranslate">^[1-9][0-9]*$</code></td>
+<td>正整数（不含0）</td>
+<td>1, 456</td>
+</tr>
+<tr>
+<td><code class="notranslate">^-[1-9]\d*$</code></td>
+<td>负整数（不含0）</td>
+<td>-789</td>
+</tr>
+<tr>
+<td><code class="notranslate">^(\-|\+)?\d+(\.\d+)?$</code></td>
+<td>正/负数及小数（支持±号）</td>
+<td>+3.14, -0.5</td>
+</tr>
+<tr>
+<td><code class="notranslate">^[0-9]+(\.[0-9]{1,2})?$</code></td>
+<td>最多两位小数的正数</td>
+<td>10.99</td>
+</tr>
+<tr>
+<td><code class="notranslate">^\d+(\.\d+)?$</code></td>
+<td>非负浮点数</td>
+<td>3.14, 100</td>
+</tr>
+<tr>
+<td><code class="notranslate">^-([1-9]\d*\.\d*|0\.\d*[1-9]\d*)$</code></td>
+<td>负浮点数</td>
+<td>-0.25</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h3><strong>二、字符校验类</strong></h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^[\u4e00-\u9fa5]{0,}$</code></td>
+<td>中文字符（含空字符串）</td>
+<td>正则表达式</td>
+</tr>
+<tr>
+<td><code class="notranslate">^[A-Za-z0-9]+$</code></td>
+<td>英文/数字组合（不含符号）</td>
+<td>Hello123</td>
+</tr>
+<tr>
+<td><code class="notranslate">^.{3,20}$</code></td>
+<td>长度3~20的任意字符</td>
+<td>abc_@1</td>
+</tr>
+<tr>
+<td><code class="notranslate">^[A-Za-z]+$</code></td>
+<td>纯英文字母（不区分大小写）</td>
+<td>RegEx</td>
+</tr>
+<tr>
+<td><code class="notranslate">^\w+$</code></td>
+<td>字母/数字/下划线</td>
+<td>user_name123</td>
+</tr>
+<tr>
+<td><code class="notranslate">^[\u4E00-\u9FA5A-Za-z0-9]+$</code></td>
+<td>中文/英文/数字（不含下划线）</td>
+<td>用户123</td>
+</tr>
+<tr>
+<td><code class="notranslate">[^%&amp;',;=?$\x22]+</code></td>
+<td>禁止输入 %&amp;',;?$" 等敏感字符</td>
+<td>Safe#Input</td>
+</tr>
+<tr>
+<td><code class="notranslate">[\u4E00-\u9FA5]</code></td>
+<td>匹配单个汉字（用于文本提取）</td>
+<td>中</td>
+</tr>
+<tr>
+<td><code class="notranslate">[\uFF00-\uFFFF]</code></td>
+<td>匹配全角符号</td>
+<td>＠，．</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h3><strong>三、特殊格式校验</strong></h3>
+<h4><strong>1. 通讯与身份</strong></h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$</code></td>
+<td>标准邮箱格式</td>
+<td><a href="mailto:user@example.com">user@example.com</a></td>
+</tr>
+<tr>
+<td><code class="notranslate">^(13[0-9]|14[5|7]|15[0-3,5-9]|18[0-9]|17[0-8])\d{8}$</code></td>
+<td>中国大陆手机号</td>
+<td>13800138000</td>
+</tr>
+<tr>
+<td><code class="notranslate">^(\d{3,4}-)?\d{7,8}$</code></td>
+<td>固定电话号码（带区号）</td>
+<td>021-87654321</td>
+</tr>
+<tr>
+<td><code class="notranslate">^\d{15}|\d{18}$</code></td>
+<td>15位/18位身份证号</td>
+<td>110105199901011234</td>
+</tr>
+<tr>
+<td><code class="notranslate">^[a-zA-Z][a-zA-Z0-9_]{4,15}$</code></td>
+<td>账号（字母开头，5-16位）</td>
+<td>user_123</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4><strong>2. 网络与地址</strong></h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-.\/?%&amp;=]*)?$</code></td>
+<td>URL链接</td>
+<td><a href="https://www.example.com" rel="nofollow">https://www.example.com</a></td>
+</tr>
+<tr>
+<td><code class="notranslate">((25[0-5]|2[0-4]\d|?\d?\d)\.){3}(25[0-5]|2[0-4]\d|?\d?\d)</code></td>
+<td>IPv4地址</td>
+<td>192.168.1.1</td>
+</tr>
+<tr>
+<td><code class="notranslate">[1-9]\d{5}(?!\d)</code></td>
+<td>中国邮政编码</td>
+<td>100000</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4><strong>3. 日期与时间</strong></h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^\d{4}-\d{1,2}-\d{1,2}$</code></td>
+<td>年-月-日格式</td>
+<td>2023-08-01</td>
+</tr>
+<tr>
+<td><code class="notranslate">^(0?[1-9]|1[0-2])$</code></td>
+<td>月份（01<del>12或1</del>12）</td>
+<td>7, 12</td>
+</tr>
+<tr>
+<td><code class="notranslate">^((0?[1-9])|((1|2)[0-9])|30|31)$</code></td>
+<td>日期（1~31）</td>
+<td>25, 31</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4><strong>4. 安全校验</strong></h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^[a-zA-Z]\w{5,17}$</code></td>
+<td>密码（字母开头，6~18位）</td>
+<td>Pass_123</td>
+</tr>
+<tr>
+<td><code class="notranslate">^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$</code></td>
+<td>强密码（大小写+数字，8~10位）</td>
+<td>Secure1</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h3><strong>四、文本处理类</strong></h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>用途</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">\n\s*\r</code></td>
+<td>空白行（含换行符和空格）</td>
+<td>删除空白行</td>
+</tr>
+<tr>
+<td><code class="notranslate">^\s*|\s*$</code></td>
+<td>行首/行尾空白字符（空格/tab）</td>
+<td>去除首尾空格</td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;!--(.*?)--&gt;</code></td>
+<td>HTML注释内容</td>
+<td>提取或删除注释</td>
+</tr>
+<tr>
+<td><code class="notranslate">[\u0000-\u00FF]</code></td>
+<td>半角字符（ASCII范围）</td>
+<td>字符集识别</td>
+</tr>
+<tr>
+<td><code class="notranslate">[^\x00-\xff]</code></td>
+<td>双字节字符（含汉字）</td>
+<td>计算文本长度（汉字计2）</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h3><strong>五、其他实用表达式</strong></h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th><strong>表达式</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">^[1-9][0-9]{4,}$</code></td>
+<td>腾讯QQ号（5位以上）</td>
+<td>10000</td>
+</tr>
+<tr>
+<td><code class="notranslate">^([a-zA-Z]:\\)?([^\\:\*\?"&lt;&gt;|]+\\)*[^\\:\*\?"&lt;&gt;|]+\.txt$</code></td>
+<td>Windows文本文件路径</td>
+<td>C:\docs\file.txt</td>
+</tr>
+<tr>
+<td><code class="notranslate">^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$</code></td>
+<td>HEX颜色代码</td>
+<td>#FF00FF</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h3><strong>使用说明</strong></h3>
+<ol>
+<li><strong>语言兼容性</strong>：以上表达式在主流编程语言中通用（如Python/Java/JavaScript），部分需转义（如Java需双反斜杠 <code class="notranslate">\\d</code>）。</li>
+<li><strong>调试建议</strong>：复杂表达式建议使用在线工具测试（如 regex101.com）。</li>
+<li><strong>特殊场景</strong>：</li>
+</ol>
+<ul>
+<li>手机号/身份证号需根据政策更新调整规则。</li>
+<li>强密码规则可通过增减 <code class="notranslate">(?=.*[特殊符号])</code> 扩展复杂度。</li>
+</ul>
+<blockquote>
+<p>整理依据常见业务需求优化，保留了原分类逻辑并修正了部分错误表达式（如金钱格式校验）。</p>
+</blockquote></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://wuyez.github.io/">青丘·五月</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","wuyez/wuyez.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
